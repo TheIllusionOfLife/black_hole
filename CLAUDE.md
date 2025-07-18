@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Core Development Principles
 
-Based on the imported configuration from the Eureka project, this codebase follows these principles:
+This codebase follows these principles:
 
 - **KISS (Keep It Simple, Stupid)** - Simplicity in design and implementation
 - **DRY (Don't Repeat Yourself)** - Avoid code duplication
@@ -19,72 +19,66 @@ Based on the imported configuration from the Eureka project, this codebase follo
 
 ## Project Overview
 
-This is the "black_hole" repository, currently being set up with development configurations imported from the Eureka project. The project uses Apache License 2.0.
+This is the "black_hole" repository. The project is currently in early setup phase and the specific implementation language has not been determined yet.
 
-## Development Setup
+## Development Environment
 
-### Python Project Structure (based on CI configuration)
-The CI workflow suggests this is a Python project with:
-- Python versions: 3.10, 3.11, 3.12, 3.13 supported
-- Dependencies: Listed in `config/requirements.txt`
-- Source code: Located in `src/` directory
-- Package structure: `src/madspark/` with agents and core modules
-
-### Common Commands
+### Devcontainer Setup
+The project uses a devcontainer for consistent development environments:
 
 ```bash
-# Install dependencies
-python -m pip install --upgrade pip
-pip install -r config/requirements.txt
+# Build and start devcontainer
+make up
 
-# Linting
-ruff check src/
+# Start Claude Code (new session)
+make claude
 
-# Type checking
-mypy src/
+# Continue previous Claude Code session
+make continue
 
-# Run tests
-PYTHONPATH=src python -m pytest
+# Enter devcontainer shell
+make shell
 
-# Security scan
-bandit -r src/ -f json
+# Show devcontainer status
+make status
+
+# Stop devcontainer
+make stop
+
+# Remove devcontainer
+make down
+
+# Rebuild devcontainer from scratch
+make rebuild
 ```
+
+### Project Structure
+The project structure will be determined based on the chosen implementation language. The CI system will automatically detect and adapt to:
+- Python projects (requirements.txt, setup.py, pyproject.toml)
+- Node.js projects (package.json)
+- Go projects (go.mod)
+- Rust projects (Cargo.toml)
+- Other languages as needed
 
 ## CI/CD Configuration
 
-The project includes GitHub Actions workflows:
+### GitHub Actions Workflows
 
-1. **CI Workflow** (`ci.yml`):
+1. **CI Workflow** (`.github/workflows/ci.yml`):
    - Runs on push to main and pull requests
-   - Tests across multiple Python versions
-   - Includes linting, type checking, and security scanning
-   - Validates project structure
+   - Language-agnostic checks:
+     - Repository structure validation
+     - Documentation presence check
+     - Automatic language detection
+   - Conditional language-specific checks based on file presence
+   - Security scanning for potential secrets
 
 2. **Code Review Workflows**:
-   - `claude-code-review.yml` - Automated code review
+   - `claude-code-review.yml` - Automated code review using Claude
    - `claude.yml` - Additional Claude-based automation
-
-3. **Gemini Configuration**:
-   - Code review enabled with MEDIUM severity threshold
-   - Reviews triggered on pull request opens
-
-## Architecture
-
-When implementing features in this project:
-
-1. **Maintain Clear Separation** - Keep different concerns in separate modules
-2. **Follow TDD** - Write tests before implementation
-3. **Keep Main Branch Green** - Ensure CI passes before merging
-4. **Use Proper Validation** - Defend against invalid inputs
-5. **Apply Least Privilege** - Run with minimal required permissions
-
-## Common Tasks
-
-### Before Committing
-1. Run linting: `ruff check src/`
-2. Run type checking: `mypy src/`
-3. Run tests: `PYTHONPATH=src python -m pytest`
-4. Ensure CI will pass
+   - Gemini code review (`.gemini/config.yaml`):
+     - Enabled with MEDIUM severity threshold
+     - Triggers on pull request opens
 
 ### Code Review
 - Gemini code review is automatically triggered on PR creation
