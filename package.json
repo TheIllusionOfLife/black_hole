@@ -1,0 +1,33 @@
+{
+  "name": "black-hole-game",
+  "version": "0.1.0",
+  "description": "Singularity Shift - A black hole-themed 3D puzzle game",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src --ext .ts,.tsx",
+    "lint:fix": "eslint src --ext .ts,.tsx --fix"
+  },
+  "keywords": [
+    "game",
+    "puzzle",
+    "black-hole",
+    "3d",
+    "typescript"
+  ],
+  "author": "TheIllusionOfLife",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@typescript-eslint/eslint-plugin": "^6.13.0",
+    "@typescript-eslint/parser": "^6.13.0",
+    "eslint": "^8.55.0",
+    "typescript": "^5.3.0",
+    "vite": "^5.0.0",
+    "vite-tsconfig-paths": "^4.2.0"
+  },
+  "dependencies": {}
+}

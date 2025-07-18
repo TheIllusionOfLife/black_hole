@@ -19,7 +19,7 @@ This codebase follows these principles:
 
 ## Project Overview
 
-This is the "black_hole" repository. The project is currently in early setup phase and the specific implementation language has not been determined yet.
+This is the "black_hole" repository for **Singularity Shift** - a black hole-themed 3D puzzle game where players manipulate spacetime to solve puzzles. The game is being developed in TypeScript and will use either Babylon.js (for 3D) or Phaser (primarily 2D, with 3D support coming in v4).
 
 ## Development Environment
 
@@ -53,12 +53,60 @@ make rebuild
 ```
 
 ### Project Structure
-The project structure will be determined based on the chosen implementation language. The CI system will automatically detect and adapt to:
-- Python projects (requirements.txt, setup.py, pyproject.toml)
-- Node.js projects (package.json)
-- Go projects (go.mod)
-- Rust projects (Cargo.toml)
-- Other languages as needed
+```
+black_hole/
+├── src/
+│   ├── game/         # Core game logic
+│   │   └── Game.ts   # Main game class
+│   ├── utils/        # Utility functions
+│   ├── assets/       # Asset management
+│   ├── types/        # TypeScript type definitions
+│   └── main.ts       # Entry point
+├── public/           # Static assets
+├── dist/             # Build output (git-ignored)
+├── index.html        # Main HTML file
+├── package.json      # Node dependencies
+├── tsconfig.json     # TypeScript configuration
+├── vite.config.ts    # Vite build configuration
+└── .eslintrc.json    # ESLint configuration
+```
+
+### Common Development Commands
+
+```bash
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+
+# Build for production
+npm run build
+
+# Type checking
+npm run typecheck
+
+# Linting
+npm run lint
+npm run lint:fix
+
+# Preview production build
+npm run preview
+```
+
+### Game Engine Setup
+The project is configured to work with either:
+- **Babylon.js** - For full 3D implementation
+- **Phaser** - For 2D or hybrid 2D/3D implementation
+
+To add your chosen engine:
+```bash
+# For Babylon.js
+npm install @babylonjs/core @babylonjs/gui @babylonjs/loaders
+
+# For Phaser
+npm install phaser
+```
 
 ## CI/CD Configuration
 
