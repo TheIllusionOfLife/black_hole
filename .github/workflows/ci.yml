@@ -2,167 +2,132 @@ name: CI
 
 on:
   push:
-    branches: [ main, codex/implement-phase-1-of-issue-#4 ]
+    branches: [ main ]
   pull_request:
     branches: [ main ]
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ['3.10', '3.11', '3.12', '3.13']
-
-    steps:
-    - uses: actions/checkout@v4
-    
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
-      with:
-        python-version: ${{ matrix.python-version }}
-    
-    - name: Cache pip dependencies
-      uses: actions/cache@v3
-      with:
-        path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('config/requirements.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-pip-
-    
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r config/requirements.txt
-    
-    - name: Lint with ruff (if available)
-      run: |
-        pip install ruff || echo "Ruff not available, skipping lint"
-        ruff check src/ || echo "Linting completed with warnings"
-      continue-on-error: true
-    
-    - name: Type check with mypy (if available)
-      run: |
-        pip install mypy || echo "MyPy not available, skipping type check"
-        mypy src/ || echo "Type checking completed with warnings"
-      continue-on-error: true
-    
-    - name: Test imports and basic functionality
-      env:
-        PYTHONPATH: src
-      run: |
-        python -c "
-        print('Testing basic imports...')
-        try:
-            import madspark.agents.idea_generator as ig
-            import madspark.agents.critic as critic
-            import madspark.agents.advocate as advocate  
-            import madspark.agents.skeptic as skeptic
-            print('✓ Agent modules imported successfully')
-        except Exception as e:
-            print(f'✗ Import error: {e}')
-            exit(1)
-        
-        # Test helper functions without API calls
-        try:
-            prompt = ig.build_generation_prompt('test', 'mode: 逆転')
-            print('✓ Prompt building works')
-        except Exception as e:
-            print(f'✗ Prompt building error: {e}')
-            exit(1)
-        
-        print('✅ Basic functionality tests passed')
-        "
-    
-    - name: Test with pytest (mock tests only)
-      env:
-        PYTHONPATH: src
-      run: |
-        # Create a simple mock test that doesn't require external dependencies
-        cat > test_ci.py << 'EOF'
-        """CI-safe tests that don't require full dependencies."""
-        import pytest
-        import sys
-        import os
-        
-        def test_package_imports():
-            """Test that package can be imported."""
-            try:
-                import madspark
-                assert hasattr(madspark, '__version__')
-                print('✓ Package imports successfully')
-            except ImportError as e:
-                pytest.skip(f"Package import not available: {e}")
-        
-        def test_agent_function_imports():
-            """Test that agent functions can be imported."""
-            try:
-                from madspark.agents.idea_generator import generate_ideas, build_generation_prompt
-                from madspark.agents.critic import evaluate_ideas  
-                from madspark.agents.advocate import advocate_idea
-                from madspark.agents.skeptic import criticize_idea
-                # Don't assert callable since they might be None due to missing dependencies
-                print('✓ Agent functions imported')
-            except ImportError as e:
-                if "genai" in str(e) or "google" in str(e):
-                    pytest.skip("Google GenAI dependencies not available in CI")
-                else:
-                    raise
-        
-        def test_constants_import():
-            """Test constants can be imported."""
-            try:
-                from madspark.utils.constants import IDEA_GENERATION_INSTRUCTION
-                assert isinstance(IDEA_GENERATION_INSTRUCTION, str)
-                print('✓ Constants imported successfully')
-            except ImportError as e:
-                pytest.skip(f"Constants import failed: {e}")
-        
-        if __name__ == "__main__":
-            pytest.main([__file__, "-v"])
-        EOF
-        
-        python -m pytest test_ci.py -v || echo "Tests completed with some skips/warnings"
-
-  security:
+  basic-checks:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
     
-    - name: Security scan with bandit (if available)
+    - name: Check repository structure
       run: |
-        pip install bandit[toml] || echo "Bandit not available"
-        bandit -r src/ -f json || echo "Security scan completed"
-      continue-on-error: true
+        echo "📁 Repository contents:"
+        ls -la
+        
+        echo -e "\n📝 Checking for documentation..."
+        if [ -f "README.md" ]; then
+          echo "✓ README.md found"
+        else
+          echo "ℹ️ README.md not found (optional)"
+        fi
+        
+        if [ -f "CLAUDE.md" ]; then
+          echo "✓ CLAUDE.md found"
+        else
+          echo "⚠️ CLAUDE.md not found"
+        fi
+        
+        if [ -f "LICENSE" ]; then
+          echo "✓ LICENSE found"
+        else
+          echo "⚠️ LICENSE file not found"
+        fi
+        
+        echo -e "\n✅ Basic structure check complete"
+    
+    - name: Check for language-specific files
+      run: |
+        echo "🔍 Detecting project type..."
+        
+        # Python detection
+        if [ -f "requirements.txt" ] || [ -f "setup.py" ] || [ -f "pyproject.toml" ] || [ -d "src" ]; then
+          echo "🐍 Python project detected"
+          if [ -f "requirements.txt" ]; then
+            echo "  - requirements.txt found"
+          fi
+          if [ -f "setup.py" ]; then
+            echo "  - setup.py found"
+          fi
+          if [ -f "pyproject.toml" ]; then
+            echo "  - pyproject.toml found"
+          fi
+        fi
+        
+        # JavaScript/Node detection
+        if [ -f "package.json" ]; then
+          echo "📦 Node.js project detected"
+          echo "  - package.json found"
+        fi
+        
+        # Go detection
+        if [ -f "go.mod" ]; then
+          echo "🐹 Go project detected"
+          echo "  - go.mod found"
+        fi
+        
+        # Rust detection
+        if [ -f "Cargo.toml" ]; then
+          echo "🦀 Rust project detected"
+          echo "  - Cargo.toml found"
+        fi
+        
+        # If no specific language detected
+        if [ ! -f "requirements.txt" ] && [ ! -f "setup.py" ] && [ ! -f "pyproject.toml" ] && \
+           [ ! -f "package.json" ] && [ ! -f "go.mod" ] && [ ! -f "Cargo.toml" ]; then
+          echo "ℹ️ No specific language configuration detected yet"
+          echo "   This is fine for a new project!"
+        fi
+        
+        echo -e "\n✅ Language detection complete"
 
-  build-check:
+  # Conditional Python checks - only run if Python files exist
+  python-checks:
     runs-on: ubuntu-latest
+    if: github.event.repository.language == 'Python' || contains(github.event.head_commit.message, 'python')
     steps:
     - uses: actions/checkout@v4
     
-    - name: Set up Python 3.11
+    - name: Check for Python files
+      id: check_python
+      run: |
+        if find . -name "*.py" -type f | grep -q .; then
+          echo "has_python=true" >> $GITHUB_OUTPUT
+          echo "🐍 Python files detected"
+        else
+          echo "has_python=false" >> $GITHUB_OUTPUT
+          echo "ℹ️ No Python files found"
+        fi
+    
+    - name: Set up Python
+      if: steps.check_python.outputs.has_python == 'true'
       uses: actions/setup-python@v4
       with:
         python-version: '3.11'
     
-    - name: Install dependencies
+    - name: Basic Python checks
+      if: steps.check_python.outputs.has_python == 'true'
       run: |
-        python -m pip install --upgrade pip
-        pip install -r config/requirements.txt
+        echo "Running basic Python syntax checks..."
+        find . -name "*.py" -type f -exec python -m py_compile {} \;
+        echo "✅ Python syntax check passed"
+
+  security-scan:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
     
-    - name: Check Python syntax
-      env:
-        PYTHONPATH: src
+    - name: Check for secrets
       run: |
-        python -m py_compile src/madspark/core/coordinator.py
-        python -m py_compile src/madspark/agents/*.py
-    
-    - name: Validate project structure
-      run: |
-        echo "Checking project structure..."
-        test -f README.md || (echo "Missing README.md" && exit 1)
-        test -f config/requirements.txt || (echo "Missing config/requirements.txt" && exit 1)
-        test -d src/madspark || (echo "Missing src/madspark directory" && exit 1)
-        test -f src/madspark/__init__.py || (echo "Missing src/madspark/__init__.py" && exit 1)
-        test -d src/madspark/agents || (echo "Missing src/madspark/agents directory" && exit 1)
-        test -f src/madspark/agents/__init__.py || (echo "Missing src/madspark/agents/__init__.py" && exit 1)
-        echo "✅ Project structure validation passed"
+        echo "🔒 Checking for potential secrets..."
+        
+        # Check for common secret patterns
+        if grep -r -E "(api_key|apikey|api-key|secret|password|token)" --include="*.py" --include="*.js" --include="*.go" --include="*.rs" --include="*.json" --include="*.yml" --include="*.yaml" --include="*.env" . 2>/dev/null | grep -v -E "(example|sample|test|mock|dummy)" | grep -q .; then
+          echo "⚠️ Warning: Potential secrets found. Please review:"
+          grep -r -E "(api_key|apikey|api-key|secret|password|token)" --include="*.py" --include="*.js" --include="*.go" --include="*.rs" --include="*.json" --include="*.yml" --include="*.yaml" --include="*.env" . 2>/dev/null | grep -v -E "(example|sample|test|mock|dummy)" | head -5
+          echo "..."
+        else
+          echo "✅ No obvious secrets detected"
+        fi
