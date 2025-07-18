@@ -2,9 +2,13 @@
  * Main Game class - will be configured for either Babylon.js or Phaser
  */
 
+// Placeholder type definitions until engine is chosen
+type BabylonEngine = unknown; // Replace with actual Babylon.js engine type
+type PhaserGame = unknown; // Replace with actual Phaser game type
+
 export class Game {
   private container: HTMLElement;
-  private engine: any; // Will be typed based on chosen library
+  private engine: BabylonEngine | PhaserGame | null = null;
   
   constructor(container: HTMLElement) {
     this.container = container;
@@ -15,7 +19,7 @@ export class Game {
    */
   private async init(): Promise<void> {
     // TODO: Initialize either Babylon.js or Phaser here
-    console.log('Initializing game engine...');
+    console.warn('Initializing game engine...');
     
     // Placeholder for engine initialization
     // if using Babylon:
@@ -30,7 +34,7 @@ export class Game {
    */
   async start(): Promise<void> {
     await this.init();
-    console.log('Game started!');
+    console.warn('Game started!');
     
     // TODO: Load initial scene/state
   }
@@ -40,6 +44,6 @@ export class Game {
    */
   destroy(): void {
     // TODO: Implement cleanup
-    console.log('Game destroyed');
+    console.warn('Game destroyed');
   }
 }

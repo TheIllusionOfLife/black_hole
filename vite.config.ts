@@ -1,7 +1,9 @@
 import { defineConfig } from 'vite';
-import { resolve } from 'path';
+import { resolve } from 'node:path';
+import tsconfigPaths from 'vite-tsconfig-paths';
 
 export default defineConfig({
+  plugins: [tsconfigPaths()],
   root: '.',
   base: '/',
   build: {
@@ -12,14 +14,6 @@ export default defineConfig({
       input: {
         main: resolve(__dirname, 'index.html'),
       },
-    },
-  },
-  resolve: {
-    alias: {
-      '@': resolve(__dirname, './src'),
-      '@game': resolve(__dirname, './src/game'),
-      '@utils': resolve(__dirname, './src/utils'),
-      '@assets': resolve(__dirname, './src/assets'),
     },
   },
   server: {
