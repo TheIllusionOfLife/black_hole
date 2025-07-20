@@ -51,6 +51,14 @@ src/
 └── types/      # TypeScript definitions
 ```
 
+## 🔫 Portal Demo
+
+A minimal Portal-style level is available using Phaser. After installing
+dependencies, run `npm run dev` and open the browser at the provided URL.
+Use the arrow keys to move the player. Left-click places a blue portal and
+right-click places an orange portal. Walking through one portal teleports you
+to the other. Reach the yellow square to win.
+
 ## 🤝 Contributing
 This project is currently in early development. Contributions are welcome!
 
