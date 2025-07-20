@@ -1,49 +1,33 @@
-/**
- * Main Game class - will be configured for either Babylon.js or Phaser
- */
-
-// Placeholder type definitions until engine is chosen
-type BabylonEngine = unknown; // Replace with actual Babylon.js engine type
-type PhaserGame = unknown; // Replace with actual Phaser game type
+import Phaser from 'phaser';
+import { PortalScene } from './PortalScene';
 
 export class Game {
-  private container: HTMLElement;
-  private engine: BabylonEngine | PhaserGame | null = null;
-  
+  private phaserGame: Phaser.Game;
+
   constructor(container: HTMLElement) {
-    this.container = container;
+    const config: Phaser.Types.Core.GameConfig = {
+      type: Phaser.AUTO,
+      width: 640,
+      height: 480,
+      parent: container,
+      physics: {
+        default: 'arcade',
+        arcade: {
+          gravity: { x: 0, y: 0 },
+        },
+      },
+      scene: [PortalScene],
+    };
+    this.phaserGame = new Phaser.Game(config);
   }
-  
-  /**
-   * Initialize the game engine
-   */
-  private async init(): Promise<void> {
-    // TODO: Initialize either Babylon.js or Phaser here
-    console.warn('Initializing game engine...');
-    
-    // Placeholder for engine initialization
-    // if using Babylon:
-    // this.engine = new BABYLON.Engine(canvas, true);
-    
-    // if using Phaser:
-    // this.engine = new Phaser.Game(config);
-  }
-  
-  /**
-   * Start the game
-   */
+
+  // phaser starts automatically when constructed
   async start(): Promise<void> {
-    await this.init();
-    console.warn('Game started!');
-    
-    // TODO: Load initial scene/state
+    // no-op for now
+    return Promise.resolve();
   }
-  
-  /**
-   * Clean up resources
-   */
+
   destroy(): void {
-    // TODO: Implement cleanup
-    console.warn('Game destroyed');
+    this.phaserGame.destroy(true);
   }
 }
